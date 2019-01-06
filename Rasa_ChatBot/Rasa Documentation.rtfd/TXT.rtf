@@ -1,0 +1,524 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671
+{\fonttbl\f0\froman\fcharset0 TimesNewRomanPS-BoldMT;\f1\froman\fcharset0 TimesNewRomanPSMT;\f2\froman\fcharset0 TimesNewRomanPS-ItalicMT;
+\f3\froman\fcharset0 TimesNewRomanPS-BoldItalicMT;\f4\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red255\green255\blue255;\red191\green191\blue191;}
+{\*\expandedcolortbl;;\csgray\c100000;\csgray\c79525;}
+\margl1440\margr1440\vieww27840\viewh15320\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qc\partightenfactor0
+
+\f0\b\fs48 \cf0 BUILDING A CHATBOT USING RASA STACK\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\fs36 \cf0 Why Rasa?
+\fs28 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sl264\slmult1\pardirnatural\partightenfactor0
+\cf0                             	
+\f1\b0 There are plenty of easy-to-use bot building frameworks developed by big companies like Google and Microsoft. For instance, 
+\f0\b DialogueFlow
+\f1\b0  which is developed by Google and 
+\f0\b Bot Framework 
+\f1\b0 developed by Microsoft. Both of them have custom language understanding modes. These frameworks seem to be great and useful when we don\'92t have any existing data to train the bot. However, In some situations or circumstances we may want to build a Chatbot whose user input must not be processed on servers that are owned by Google and Microsoft. For example, we may want a ChatBot for a business organization in which a bot receives a potentially sensitive and confidential information from users. In such case, we may feel comfortable to maintain all the components of Chatbot at our home. \
+\
+			This is where RASA platform comes in and makes things easier. It is an open source bot building framework. It doesn\'92t have any components on the server that we can call using an API. This means it will take more work to get it running. However, being incomplete control pf all the components of your chatbot is totally worth the time investment.\
+\
+\
+
+\f0\b\fs36 RASA STACK
+\fs28 \
+\
+			
+\f1\b0 Rasa consists of two components Rasa 
+\f0\b NLU
+\f1\b0  and Rasa 
+\f0\b CORE
+\f1\b0 . Rasa NLU is responsible for 
+\f2\i natural language understanding 
+\f1\i0 of the chatbot. Its main purpose is, given an input sentence, It has to predict the 
+\f2\i intent
+\f1\i0  of that sentence, extract the 
+\f2\i entities
+\f1\i0  from the sentence such as age, date of birth. Intent dictates how the chatbot should respond to the input from the user. Entities are used to make responses more customized.\
+\
+			The second component, Rasa 
+\f0\b CORE
+\f1\b0 , the next component in Rasa Stack. It takes the structured input from Rasa 
+\f0\b NLU
+\f1\b0  or it takes the output produced by Rasa NLU and chooses which action bot should take using a probabilistic model like LSTM neural network.\
+\
+			The coolest thing about Rasa is every part of the stack is fully customizable and interchangeable. It is possible to use Rasa 
+\f0\b CORE
+\f1\b0  and Rasa 
+\f0\b NLU
+\f1\b0  separately and independently.\
+\
+\
+
+\f0\b\fs36 Development Procedure\
+\
+	
+\f1\b0\fs28 For developing this chatbot we are using python 3.x version
+\f0\b \
+
+\fs36 \
+	
+\fs32 Setting up Rasa NLU\
+\
+		
+\f1\b0\fs28 The recommended way to install Rasa NLU is using pip:\
+\
+		command:  
+\f0\b pip3 install rasa_nlu
+\f1\b0 \
+\
+
+\f0\b Note:
+\f1\b0  If you want to install packages of version 3.x use pip3 in the pip.\
+\
+
+\f0\b\fs32 	Installing Pipeline Dependencies\
+\
+		
+\f1\b0\fs28 command:
+\f0\b\fs32 \
+				
+\fs28 pip install rasa_nlu[spacy]\
+				python -m spacy download en_core_web_md\
+				python -m spacy link en_core_web_md en\
+\
+
+\f1\b0 This will install Rasa NLU as well as its language model for English language.\
+\
+\
+
+\f0\b\fs32 Getting started with Rasa NLU\
+\
+
+\f1\b0\fs28 	We are developing a simple restaurant search chatbot here.\
+\
+
+\f0\b 1. Prepare your NLU Training Data\
+\
+
+\f1\b0 This data is just a list of messages that you expect to receive from user. They are annotated with intents and entities that NLU should learn to extract.\
+\
+Prepare the data in a file and save it as 
+\f0\b nlu.md\
+\
+
+\f1\b0 sample data in 
+\f0\b nlu.md
+\f1\b0  file\
+\
+## intent:greet\
+- hey\
+- hello\
+- hi\
+- good morning\
+- good evening\
+- hey there\
+\
+## intent:restaurant_search\
+- i'm looking for a place to eat\
+- I want to grab lunch\
+- I am searching for a dinner spot\
+- i'm looking for a place in the [north](location) of town\
+- show me [chinese](cuisine) restaurants\
+- show me a [mexican](cuisine) place in the [centre](location)\
+- i am looking for an [indian](cuisine) spot\
+- search for restaurants\
+- anywhere in the [west](location)\
+- anywhere near [18328](location)\
+- I am looking for [asian fusion](cuisine) food\
+- I am looking a restaurant in [29432](location)\
+\
+## intent:thankyou\
+- thanks!\
+- thank you\
+- thx\
+- thanks very much\
+\
+\
+
+\f0\b 2. Define your Machine learning Model\
+\
+
+\f1\b0 Rasa NLU has a number of different components, which together makes a pipeline. We have to create a configuration file and specify which pipeline we want to use. Here we are using pre-defined 
+\f3\i\b tensorflow_embedding
+\f1\i0\b0  pipeline
+\f0\b \
+
+\f1\b0 and save the file as \'93
+\f0\b nlu_config.yml\'94
+\f1\b0 .\
+\
+
+\f0\b nlu_config.yml
+\f1\b0 \
+\
+language: en\
+pipeline: tensorflow_embedding\
+\
+
+\f0\b 3. Train your Machine Learning NLU Model
+\f1\b0 \
+\
+To train a model, start the rasa_nlu.train command, and tell it where to find the configuration file and training data.\
+\
+Use the following command to train the data.\
+\
+
+\f0\b python -m rasa_nlu.train -c nlu_config.yml --data nlu.md -o models --fixed_model_name nlu --project current --verbose\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f4\b0\fs24 \cf0 {{\NeXTGraphic Screen Shot 2018-11-26 at 1.37.47 PM.png \width28620 \height7680 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs28 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sl264\slmult1\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b0 \cf0 If everything goes fine, you will see a message saying Finished training and successfully saved in to specified folder.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs48 \cf0 Running the Trained Model
+\f1\b0\fs28 \
+\
+There are two ways that we can run our model, directly from python, or by starting a http server. To use your new model in python, create an 
+\f0\b Interpreter 
+\f1\b0 object and pass message to its 
+\f0\b parse()
+\f1\b0  method.\
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs32 \cf0 Test Cases\
+
+\f1\b0\fs28 \
+Testing our model with different test cases.\
+\
+1. Lets test our trained model with message: 
+\f0\b \'93Lets see some Italian restaurants\'94\
+\
+Result:\
+\
+
+\f4\b0\fs24 {{\NeXTGraphic Screen Shot 2018-11-26 at 1.46.37 PM.png \width26480 \height8400 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}
+\f0\b\fs32 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\fs28 \cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sl264\slmult1\pardirnatural\partightenfactor0
+\cf0 2. message: 
+\f0\b \'93Mexican food near me\'94\
+\
+Result:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f4\b0\fs24 \cf0 {{\NeXTGraphic Screen Shot 2018-11-26 at 1.49.36 PM.png \width28700 \height8220 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs28 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sl264\slmult1\pardirnatural\partightenfactor0
+\cf0 \
+\
+
+\f1\b0 3. message: 
+\f0\b \'93Hello\'94\
+\
+Result:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f4\b0\fs24 \cf0 {{\NeXTGraphic Screen Shot 2018-11-26 at 1.52.20 PM.png \width28760 \height8000 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs28 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sl264\slmult1\pardirnatural\partightenfactor0
+
+\f1\b0 \cf0 \
+
+\f0\b \
+
+\fs48 RASA CORE\
+
+\fs28 					
+\f1\b0 \
+
+\f0\b\fs32 Installation of Rasa Core\
+
+\f1\b0\fs28 					Recommended way to install Rasa Core is using 
+\f0\b pip
+\f1\b0 . It installs the latest stable version.\
+\
+
+\f0\b Command:\
+                       
+\f1\b0 pip3 install rasa_core\
+\
+\
+
+\f0\b\fs36 1. Writing Stories
+\fs48 \
+\
+
+\f1\b0\fs28 Rasa core learns from different examples conversations. Each different conversation is called a story. A story have a unique name and unique path it flows. We have to create stories and train Rasa Core Accordingly.\
+\
+A story starts with 
+\f0\b ##
+\f1\b0  and after 
+\f0\b name
+\f1\b0  (optional).\
+\
+
+\f0\b Small story looks like this:\
+
+\f1\b0 \
+					## story1\
+						*greet\
+						  - utter_greet\
+\
+In the above story, user greets chatbot and it greets back the user. In the realtime, There is response can be handled in many ways. It can be direct response that Chatbot trained with or there may be API calls to get the response that to be sent to user.\
+\
+A typical 
+\f0\b stories
+\f1\b0  file looks like this:\
+\
+## happy path\
+* greet\
+  - utter_greet\
+* mood_great\
+  - utter_happy\
+\
+## sad path 1\
+* greet\
+  - utter_greet\
+* mood_unhappy\
+  - utter_cheer_up\
+  - utter_did_that_help\
+* mood_affirm\
+  - utter_happy\
+\
+## sad path 2\
+* greet\
+  - utter_greet\
+* mood_unhappy\
+  - utter_cheer_up\
+  - utter_did_that_help\
+* mood_deny\
+  - utter_goodbye\
+\
+## say goodbye\
+* goodbye\
+  - utter_goodbye\
+\
+We need to 
+\f0\b save
+\f1\b0  the file with .
+\f0\b md
+\f1\b0  extension. \
+\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b\fs36 \cf0 2. Define a Domain\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f1\b0\fs28 \cf0 The next thing we need to do is defining a domain. Domain is the place where our Chatbot lives in. \
+\
+Domain file consists of different parts.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qj\partightenfactor0
+\cf0 \
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat2 \clwWidth8100\clftsWidth3 \clheight438 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth7280\clftsWidth3 \clheight438 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qc\partightenfactor0
+
+\f0\b \cf0 intents
+\fs48 \cell 
+\pard\intbl\itap1\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qj\partightenfactor0
+
+\f1\b0\fs28 \cf0 things we expect user to say (its Rasa NLU for Rasa Core).
+\f0\b\fs48 \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth8100\clftsWidth3 \clheight422 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth7280\clftsWidth3 \clheight422 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qc\partightenfactor0
+
+\fs28 \cf0 actions
+\fs48 \cell 
+\pard\intbl\itap1\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qj\partightenfactor0
+
+\f1\b0\fs28 \cf0 things our bot can do and say.
+\f0\b\fs48 \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth8100\clftsWidth3 \clheight431 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth7280\clftsWidth3 \clheight431 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qc\partightenfactor0
+
+\fs28 \cf0 templates
+\fs48 \cell 
+\pard\intbl\itap1\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qj\partightenfactor0
+
+\f1\b0\fs28 \cf0 template strings that our bot can say.
+\f0\b\fs48 \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth8100\clftsWidth3 \clheight373 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth7280\clftsWidth3 \clheight373 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qc\partightenfactor0
+
+\fs28 \cf0 entities
+\fs48 \cell 
+\pard\intbl\itap1\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qj\partightenfactor0
+
+\f1\b0\fs28 \cf0 piece of info that we want to extract from the messages.
+\f0\b\fs48 \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth8100\clftsWidth3 \clheight441 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth7280\clftsWidth3 \clheight441 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qc\partightenfactor0
+
+\fs28 \cf0 slots	
+\fs48 \cell 
+\pard\intbl\itap1\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qj\partightenfactor0
+
+\f1\b0\fs28 \cf0 information to keep track during a conversation.
+\f0\b\fs48 \cell \lastrow\row
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sl264\slmult1\pardirnatural\partightenfactor0
+
+\fs28 \cf0 \
+
+\f1\b0 Our simple Example here do not have slots and entities.\
+\
+intents:\
+  - greet\
+  - goodbye\
+  - mood_affirm\
+  - mood_deny\
+  - mood_great\
+  - mood_unhappy\
+\
+actions:\
+- utter_greet\
+- utter_cheer_up\
+- utter_did_that_help\
+- utter_happy\
+- utter_goodbye\
+\
+templates:\
+  utter_greet:\
+  - text: "Hey! How are you?"\
+\
+  utter_cheer_up:\
+  - text: "Here is something to cheer you up:"\
+    image: "https://i.imgur.com/nGF1K8f.jpg"\
+\
+  utter_did_that_help:\
+  - text: "Did that help you?"\
+\
+  utter_happy:\
+  - text: "Great carry on!"\
+\
+  utter_goodbye:\
+  - text: "Bye"
+\f0\b \
+\
+\
+save
+\f1\b0  the content in the file with extension 
+\f0\b .yml\
+\
+\
+
+\fs36 3. Train a Dialogue Model\
+\
+
+\f1\b0\fs28 Next step is to train a neural network on example stories that we created. Training is done using following command.\
+\
+
+\f0\b Command:\
+			
+\f1\b0 python -m rasa_core.train -d 
+\f0\b domain.yml
+\f1\b0  -s 
+\f0\b stories.md 
+\f1\b0 -o models/dialogue\
+\
+\
+
+\f0\b\fs36 4. Talking to Our bot\
+\
+
+\f1\b0\fs28 We have added both Rasa NLU and Rasa CORE models and trained the models. Now we can talk to our bot and observe the responses it gives to us. Input has to match our trained data and output will be according to it.\
+\
+
+\f0\b Command:
+\f1\b0  \
+			python -m rasa_core.run -d models/dialogue -u models/current/nlu\
+\
+Rasa core server will be up and running on port
+\f0\b  5005\
+\
+Here are some results of ChatBot responding to user messages.\
+\
+
+\f1\b0 Rasa core executes the stories according to user input and corresponding template has been said out.\
+\
+
+\f0\b Result 1:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f4\b0\fs24 \cf0 {{\NeXTGraphic Screen Shot 2018-11-28 at 1.07.23 PM.png \width28740 \height11200 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}
+\f0\b\fs36 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sl264\slmult1\pardirnatural\partightenfactor0
+\cf0 \
+
+\fs28 Result 2:\
+\
+
+\f1\b0 In this case Rasa Core selected story 
+\f0\b happy path
+\f1\b0  and executed it.
+\f0\b \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f4\b0\fs24 \cf0 {{\NeXTGraphic Screen Shot 2018-11-28 at 1.23.22 PM.png \width28660 \height9140 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}
+\f0\b\fs28 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sl264\slmult1\pardirnatural\partightenfactor0
+\cf0 \
+\
+Result 3:\
+\
+
+\f1\b0 In this scenario, story 
+\f0\b sad path
+\f1\b0  has got executed.\
+
+\f0\b \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f4\b0\fs24 \cf0 {{\NeXTGraphic Screen Shot 2018-11-28 at 1.37.01 PM.png \width28720 \height9760 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}
+\f0\b\fs28 \
+}
